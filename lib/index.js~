@@ -1,0 +1,72 @@
+require('dotenv').config({ path: './.cachemw' });
+const ramda = require('ramda');
+const Fantasy = require('ramda-fantasy');
+const fs = require('fs');
+const pathJoin = require('path').join;
+
+const Future = Fantasy.Future;
+
+const cacheDir = process.env.CACHE_DIR || `${process.cwd()}/cache`;
+
+const dirExists = (path) => new Future((reject, resolve) => {
+  fs.stat(path, (err, stats) => {
+    if (err || !stats) {
+      fs.mkdirSync(path);
+      console.log(`created cache dir ${path}`);
+    }
+    resolve(path);
+  });
+});
+
+const fsPut = (path, data) => new Future((reject, resolve) => {
+  fs.writeFile(path, data, (writeErr, writeData) => {
+    if (writeErr) {
+      reject(writeErr);
+    } else {
+      resolve(path, writeData);
+    }
+  });
+});
+
+const fsGet = (path) => new Future((reject, resolve) => {
+  fs.readFile(path, (readErr, readData) => {
+    if (readErr) {
+      reject(readErr);
+    } else if (!readData) {
+      reject({ error: 'no data', message: `fs.readFile for ${path} returned no data` });
+    } else {
+      try {
+        resolve(JSON.parse(readData));
+      } catch (e) {
+        reject(e);
+      }
+    }
+  });
+});
+
+
+const cacheMiddleWare = (req, res, next) => {
+  const cachedResponseRequested = req.query.hasOwnProperty('cache');
+
+  if (cachedResponseRequested) {
+    fsGet(req.path).fork(
+      (err) => {
+        // hijack respons to cache eventual model
+      },
+      (data) => {
+        // try to return cached model
+      }
+    );
+  } else {
+    // proceed normally
+    next();
+  }
+};
+
+module.expoerts = {
+  cacheMiddleware,
+  fsGet,
+  fsPut,
+  dirExists,
+  urlToFilePath,
+};
