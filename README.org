@@ -1,0 +1,18 @@
+* Model Cache Middleware
+
+Middleware for [[http://expressjs.com][express.js]] that will cache/clear cache of view models based on signals from incoming requests
+
+
+
+** Use Case
+
+This is not intended to be a performant caching solution.  However, development environments can have unexpected constraints, such as hard timeouts, 
+
+** TODO MVP [0/2]
+- [ ] ensure caching directory exists with write permission on startup
+- [ ] allow for different persistence strategies (in memory, redis)
+- [ ] enable route timeouts that will default to a cached model
+- [ ] allow configuration for the various cache/clear triggers
+
+** TODO Stretch [0/1]
+- [ ] trigger cached responses based on response time statistics
